@@ -12,5 +12,6 @@ export default defineConfig({
     includeSource: ["src/**/*.{ts,tsx}"],
     mockReset: true,
     restoreMocks: true,
+    css: true,
   },
 });
