@@ -1,13 +1,33 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import * as Y from "yjs";
+import Loading from "../Loading";
 
 type TodoListEntryProps = {
-  value: string; // or any other type you expect 'value' to be
+  value: Y.Map<string>; // or any other type you expect 'value' to be
 };
 
-export function TodoListEntry({ value: initValue }: TodoListEntryProps) {
+export function TodoListEntry({ value: yValue }: TodoListEntryProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(initValue);
+  const [value, setValue] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // get init value
+    const currentValue = yValue.get("value") || "";
+    setValue(currentValue);
+
+    // observe changes
+    const observer = (event: Y.YMapEvent<string>) => {
+      if (event.keysChanged.has("value")) {
+        setValue(event.target.get("value") || "");
+      }
+    };
+    yValue.observe(observer);
+
+    return () => {
+      yValue.unobserve(observer);
+    };
+  }, [yValue]);
 
   // Focus the input field when editing
   useEffect(() => {
@@ -30,15 +50,23 @@ export function TodoListEntry({ value: initValue }: TodoListEntryProps) {
     }
   };
 
+  const handleChange = (event: InputEvent) => {
+    if (event.target instanceof HTMLInputElement) {
+      yValue.set("value", event.target.value);
+    }
+  };
+
+  if (value === null) {
+    return <Loading />;
+  }
+
   if (isEditing) {
     return (
       <div className="container">
         <input
           type="text"
           value={value}
-          onChange={(event) =>
-            setValue((event.target as HTMLInputElement).value)
-          }
+          onInput={handleChange}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           ref={inputRef}
