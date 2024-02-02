@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [preact(), eslint()],
   test: {
     environment: "happy-dom",
-    // setupFiles: ["./setupTests.ts"],
+    setupFiles: ["./setupTests.ts"],
     includeSource: ["src/**/*.{ts,tsx}"],
     mockReset: true,
     restoreMocks: true,

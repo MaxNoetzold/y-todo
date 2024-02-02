@@ -4,10 +4,10 @@ import "@testing-library/jest-dom/vitest";
 import { expect, test } from "vitest";
 import { render, fireEvent, screen } from "@testing-library/preact";
 
-import { App } from "./app";
+import { Counter } from "./Counter";
 
 test("increments count when button is clicked", () => {
-  render(<App />);
+  render(<Counter />);
 
   const button = screen.getByText("Increment");
 
