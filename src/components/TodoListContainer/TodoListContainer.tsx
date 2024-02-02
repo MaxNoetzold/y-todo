@@ -1,16 +1,10 @@
-import { useState } from "preact/hooks";
 import TodoListEntry from "../TodoListEntry";
+import * as Y from "yjs";
 
-export function TodoListContainer() {
-  const [todos, setTodos] = useState<string[]>([]);
+type TodoListContainerProps = {
+  yTodos: Y.Array<string>;
+};
 
-  return (
-    <div className="container">
-      {todos.map((todo, index) => (
-        <div key={index}>
-          <TodoListEntry value={todo} />
-        </div>
-      ))}
-    </div>
-  );
+export function TodoListContainer({ yTodos }: TodoListContainerProps) {
+  return <div></div>;
 }
