@@ -59,4 +59,8 @@ test("you can edit the value", async () => {
   const inputElement = await screen.findByRole("textbox");
   await userEvent.type(inputElement, " Edited");
   expect(inputElement).toHaveValue("Test Entry Edited");
+
+  // Expect the value to remain the same after blur
+  await userEvent.tab();
+  expect(screen.getByText("Test Entry Edited")).toBeInTheDocument();
 });
