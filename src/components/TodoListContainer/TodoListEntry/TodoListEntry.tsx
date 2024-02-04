@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import * as Y from "yjs";
-import Loading from "../Loading";
+import Loading from "../../Loading";
 
 type TodoListEntryProps = {
   value: Y.Map<string>; // or any other type you expect 'value' to be

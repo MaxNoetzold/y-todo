@@ -1,6 +1,6 @@
 - [x] Add simple Todo List Entry that is editable
-- [ ] Add Todolist Container (that just renders Entries)
-- [ ] Add yjs
+- [x] Add Todolist Container (that just renders Entries)
+- [x] Add yjs
 - [ ] Add Button to add more Todos
 - [ ] Add option to remove Todo
 - [ ] Add backend with y-websocket & y-mongodb-provider & mongodb

@@ -1,4 +1,4 @@
-import TodoListEntry from "../TodoListEntry";
+import TodoListEntry from "./TodoListEntry";
 import * as Y from "yjs";
 
 type TodoListContainerProps = {

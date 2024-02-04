@@ -5,7 +5,7 @@
 */
 
 import { expect, test } from "vitest";
-import { render, screen, waitFor } from "@testing-library/preact";
+import { render, screen } from "@testing-library/preact";
 import userEvent from "@testing-library/user-event";
 
 import * as Y from "yjs";
@@ -108,10 +108,6 @@ test("value edits are stored in the ymap", async () => {
 
   // Expect the value to be stored in the ymap
   expect(testEntry.get("value")).toBe("Test Entry Edited");
-
-  // await waitFor(() => {
-  //   expect(testEntry.get("value")).toBe("Test Entry Edited");
-  // });
 });
 
 test("external changes are reflected", async () => {
