@@ -1,0 +1,1 @@
+Note on my nodemon script: I wanted to use `ts-node`, but unfortunately it [does not work on Node v20 anymore](https://github.com/TypeStrong/ts-node/issues/1997). So I went back to a simpler variant with `tsc` building.
