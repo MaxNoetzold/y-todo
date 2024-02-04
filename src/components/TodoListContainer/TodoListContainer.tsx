@@ -25,12 +25,19 @@ export function TodoListContainer({ yTodos }: TodoListContainerProps) {
     };
   }, [yTodos]);
 
+  const handleDelete = (index: number) => {
+    yTodos.delete(index);
+  };
+
   return (
     <div className="container">
       <ul className="list-group mb-3">
         {allTodos.map((todo, index) => (
           <li className="list-group-item" key={index}>
-            <TodoListEntry value={todo} />
+            <TodoListEntry
+              value={todo}
+              handleDelete={() => handleDelete(index)}
+            />
           </li>
         ))}
       </ul>

@@ -4,7 +4,7 @@
   "Property xxx does not exist on type 'Assertion<HTMLElement>'." They are added in setupTests.ts but Typescript doesnt know here.
 */
 
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/preact";
 import userEvent from "@testing-library/user-event";
 
@@ -23,7 +23,7 @@ function createNewTestEntry(value: string) {
 test("renders a todo list entry", async () => {
   const testEntry = createNewTestEntry("Test Entry");
 
-  render(<TodoListEntry value={testEntry} />);
+  render(<TodoListEntry value={testEntry} handleDelete={vi.fn()} />);
 
   const entryElement = await screen.findByText("Test Entry");
   expect(entryElement).toBeInTheDocument();
@@ -31,10 +31,9 @@ test("renders a todo list entry", async () => {
 
 test("changes mouse pointer on hover", async () => {
   const testEntry = createNewTestEntry("Test Entry");
-
   const user = userEvent.setup();
 
-  render(<TodoListEntry value={testEntry} />);
+  render(<TodoListEntry value={testEntry} handleDelete={vi.fn()} />);
   const entryElement = await screen.findByText("Test Entry");
 
   // Simulate mouse hover
@@ -46,12 +45,13 @@ test("changes mouse pointer on hover", async () => {
 
 test("changes to an input field on click", async () => {
   const testEntry = createNewTestEntry("Test Entry");
+  const user = userEvent.setup();
 
-  render(<TodoListEntry value={testEntry} />);
+  render(<TodoListEntry value={testEntry} handleDelete={vi.fn()} />);
   const entryElement = screen.getByText("Test Entry");
 
   // Simulate click
-  await userEvent.click(entryElement);
+  await user.click(entryElement);
 
   // Check if the element has changed to an input field
   const inputElement = await screen.findByRole("textbox");
@@ -60,51 +60,54 @@ test("changes to an input field on click", async () => {
 
 test("changes back to a div on blur", async () => {
   const testEntry = createNewTestEntry("Test Entry");
+  const user = userEvent.setup();
 
-  render(<TodoListEntry value={testEntry} />);
+  render(<TodoListEntry value={testEntry} handleDelete={vi.fn()} />);
   const entryElement = screen.getByText("Test Entry");
 
   // Simulate click
-  await userEvent.click(entryElement);
+  await user.click(entryElement);
 
   // Simulate blur
   const inputElement = await screen.findByRole("textbox");
-  await userEvent.tab();
+  await user.tab();
   expect(inputElement).not.toBeInTheDocument();
   expect(screen.getByText("Test Entry")).toBeInTheDocument();
 });
 
 test("you can edit the value", async () => {
   const testEntry = createNewTestEntry("Test Entry");
+  const user = userEvent.setup();
 
-  render(<TodoListEntry value={testEntry} />);
+  render(<TodoListEntry value={testEntry} handleDelete={vi.fn()} />);
   const entryElement = screen.getByText("Test Entry");
 
   // Simulate click
-  await userEvent.click(entryElement);
+  await user.click(entryElement);
 
   // Simulate edit
   const inputElement = await screen.findByRole("textbox");
-  await userEvent.type(inputElement, " Edited");
+  await user.type(inputElement, " Edited");
   expect(inputElement).toHaveValue("Test Entry Edited");
 
   // Expect the value to remain the same after blur
-  await userEvent.tab();
+  await user.tab();
   expect(screen.getByText("Test Entry Edited")).toBeInTheDocument();
 });
 
 test("value edits are stored in the ymap", async () => {
   const testEntry = createNewTestEntry("Test Entry");
+  const user = userEvent.setup();
 
-  render(<TodoListEntry value={testEntry} />);
+  render(<TodoListEntry value={testEntry} handleDelete={vi.fn()} />);
   const entryElement = screen.getByText("Test Entry");
 
   // Simulate click
-  await userEvent.click(entryElement);
+  await user.click(entryElement);
 
   // Simulate edit
   const inputElement = await screen.findByRole("textbox");
-  await userEvent.type(inputElement, " Edited");
+  await user.type(inputElement, " Edited");
 
   // Expect the value to be stored in the ymap
   expect(testEntry.get("value")).toBe("Test Entry Edited");
@@ -113,12 +116,26 @@ test("value edits are stored in the ymap", async () => {
 test("external changes are reflected", async () => {
   const testEntry = createNewTestEntry("Test Entry");
 
-  render(<TodoListEntry value={testEntry} />);
-  const entryElement = screen.getByText("Test Entry");
+  render(<TodoListEntry value={testEntry} handleDelete={vi.fn()} />);
 
   // Simulate external change
   testEntry.set("value", "Test Entry Changed");
 
   // Expect the value to change
   expect(await screen.findByText("Test Entry Changed")).toBeInTheDocument();
+});
+
+test("delete function is called on button click", async () => {
+  const testEntry = createNewTestEntry("Test Entry");
+  const user = userEvent.setup();
+  const handleDelete = vi.fn();
+
+  render(<TodoListEntry value={testEntry} handleDelete={handleDelete} />);
+  const deleteButton = screen.getByRole("button");
+
+  // Simulate click
+  await user.click(deleteButton);
+
+  // Expect the delete function to be called
+  expect(handleDelete).toHaveBeenCalledTimes(1);
 });

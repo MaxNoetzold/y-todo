@@ -3,10 +3,14 @@ import * as Y from "yjs";
 import Loading from "../../Loading";
 
 type TodoListEntryProps = {
-  value: Y.Map<string>; // or any other type you expect 'value' to be
+  value: Y.Map<string>;
+  handleDelete: Function;
 };
 
-export function TodoListEntry({ value: yValue }: TodoListEntryProps) {
+export function TodoListEntry({
+  value: yValue,
+  handleDelete,
+}: TodoListEntryProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,21 +40,21 @@ export function TodoListEntry({ value: yValue }: TodoListEntryProps) {
     }
   }, [isEditing]);
 
-  const handleClick = () => {
+  const handleTextClick = () => {
     setIsEditing(true);
   };
 
-  const handleBlur = () => {
+  const handleInputBlur = () => {
     setIsEditing(false);
   };
 
-  const handleKeyDown = (event: KeyboardEvent) => {
+  const handleInputKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter") {
       setIsEditing(false);
     }
   };
 
-  const handleChange = (event: InputEvent) => {
+  const handleInputChange = (event: InputEvent) => {
     if (event.target instanceof HTMLInputElement) {
       yValue.set("value", event.target.value);
     }
@@ -61,26 +65,51 @@ export function TodoListEntry({ value: yValue }: TodoListEntryProps) {
   }
 
   return (
-    <div className="container" style={{ height: "24px" }}>
+    <div
+      className="container d-flex justify-content-between align-items-center"
+      style={{ height: "24px" }}
+    >
       {isEditing ? (
         <input
           type="text"
           value={value}
-          onInput={handleChange}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
+          onInput={handleInputChange}
+          onBlur={handleInputBlur}
+          onKeyDown={handleInputKeyDown}
           ref={inputRef}
           className="h-100"
         />
       ) : (
         <div
           style={{ cursor: "pointer" }}
-          onClick={handleClick}
+          onClick={handleTextClick}
           className="h-100"
+          aria-label={`edit "${value}"`}
         >
           {value}
         </div>
       )}
+      <button
+        type="button"
+        className="btn btn-danger bg-transparent"
+        onClick={() => handleDelete()}
+        aria-label={`delete "${value}"`}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="#dc3545"
+          className="bi bi-trash"
+          viewBox="0 0 16 16"
+        >
+          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5z" />
+          <path
+            fill-rule="evenodd"
+            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h1.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+          />
+        </svg>
+      </button>
     </div>
   );
 }
