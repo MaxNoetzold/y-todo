@@ -13,17 +13,20 @@ export function TodoListEntry({
 }: TodoListEntryProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState<string | null>(null);
+  const [checked, setChecked] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // get init value
-    const currentValue = yValue.get("value") || "";
-    setValue(currentValue);
+    setValue(yValue.get("value") || "");
+    setChecked(yValue.get("checked") === "true");
 
     // observe changes
     const observer = (event: Y.YMapEvent<string>) => {
       if (event.keysChanged.has("value")) {
         setValue(event.target.get("value") || "");
+      } else if (event.keysChanged.has("checked")) {
+        setChecked(event.target.get("checked") === "true");
       }
     };
     yValue.observe(observer);
@@ -60,6 +63,12 @@ export function TodoListEntry({
     }
   };
 
+  const handleCheckboxChange = (event: InputEvent) => {
+    if (event.target instanceof HTMLInputElement) {
+      yValue.set("checked", `${event.target.checked}`);
+    }
+  };
+
   if (value === null) {
     return <Loading />;
   }
@@ -69,6 +78,16 @@ export function TodoListEntry({
       className="container d-flex justify-content-between align-items-center"
       style={{ height: "24px" }}
     >
+      <div className="form-check">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="flexCheckDefault"
+          checked={checked}
+          onInput={handleCheckboxChange}
+          aria-label={`check "${value}"`}
+        />
+      </div>
       {isEditing ? (
         <input
           type="text"
@@ -81,7 +100,10 @@ export function TodoListEntry({
         />
       ) : (
         <div
-          style={{ cursor: "pointer" }}
+          style={{
+            cursor: "pointer",
+            textDecoration: checked ? "line-through" : "none",
+          }}
           onClick={handleTextClick}
           className="h-100"
           aria-label={`edit "${value}"`}

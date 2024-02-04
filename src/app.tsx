@@ -33,6 +33,7 @@ export function App() {
       testEntry1.set("value", "Test Entry 1");
       const testEntry2 = new Y.Map<string>();
       testEntry2.set("value", "Test Entry 2");
+      testEntry2.set("checked", "true");
       newArray.push([testEntry1, testEntry2]);
     }
   }, [yDoc]);
