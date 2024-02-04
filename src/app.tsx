@@ -41,5 +41,10 @@ export function App() {
     return <Loading />;
   }
 
-  return <TodoListContainer yTodos={yTodos} />;
+  return (
+    <div className="container mt-2">
+      <h1 className="display-4">Y-Todos</h1>
+      <TodoListContainer yTodos={yTodos} />
+    </div>
+  );
 }

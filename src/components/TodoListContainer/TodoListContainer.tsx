@@ -27,11 +27,13 @@ export function TodoListContainer({ yTodos }: TodoListContainerProps) {
 
   return (
     <div className="container">
-      <div className="list-group">
+      <ul className="list-group mb-3">
         {allTodos.map((todo, index) => (
-          <TodoListEntry key={index} value={todo} />
+          <li className="list-group-item" key={index}>
+            <TodoListEntry value={todo} />
+          </li>
         ))}
-      </div>
+      </ul>
       <AddTodoButton yTodos={yTodos} />
     </div>
   );

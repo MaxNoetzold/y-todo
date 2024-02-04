@@ -60,9 +60,9 @@ export function TodoListEntry({ value: yValue }: TodoListEntryProps) {
     return <Loading />;
   }
 
-  if (isEditing) {
-    return (
-      <div className="container">
+  return (
+    <div className="container" style={{ height: "24px" }}>
+      {isEditing ? (
         <input
           type="text"
           value={value}
@@ -70,16 +70,17 @@ export function TodoListEntry({ value: yValue }: TodoListEntryProps) {
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           ref={inputRef}
+          className="h-100"
         />
-      </div>
-    );
-  } else {
-    return (
-      <div className="container">
-        <div style={{ cursor: "pointer" }} onClick={handleClick}>
+      ) : (
+        <div
+          style={{ cursor: "pointer" }}
+          onClick={handleClick}
+          className="h-100"
+        >
           {value}
         </div>
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
 }
