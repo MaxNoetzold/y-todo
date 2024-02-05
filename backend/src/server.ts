@@ -28,12 +28,6 @@ const mdb = new MongodbPersistence(process.env.MONGO_URL, {
 
 setPersistence({
   bindState: async (docName: string, ydoc: IWSSharedDoc) => {
-    // Here you listen to granular document updates and store them in the database
-    // You don't have to do this, but it ensures that you don't lose content when the server crashes
-    // See https://github.com/yjs/yjs#Document-Updates for documentation on how to encode
-    // document updates
-
-    // official default code from: https://github.com/yjs/y-websocket/blob/37887badc1f00326855a29fc6b9197745866c3aa/bin/utils.js#L36
     const persistedYdoc = await mdb.getYDoc(docName);
     const newUpdates = Y.encodeStateAsUpdate(ydoc);
     mdb.storeUpdate(docName, newUpdates);
@@ -43,11 +37,7 @@ setPersistence({
     });
   },
   writeState: (docName: string, ydoc: IWSSharedDoc) => {
-    // This is called when all connections to the document are closed.
-    // In the future, this method might also be called in intervals or after a certain number of updates.
     return new Promise((resolve) => {
-      // When the returned Promise resolves, the document will be destroyed.
-      // So make sure that the document really has been written to the database.
       resolve(true);
     });
   },

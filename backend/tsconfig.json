@@ -13,13 +13,12 @@
 
     /* Copied from:  https://github.com/jupyterlab/jupyterlab/blob/main/tsconfigbase.json */
     "allowSyntheticDefaultImports": true,
-    "composite": true,
     "esModuleInterop": true,
-    "incremental": true,
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
     "noImplicitAny": true,
+    "preserveWatchOutput": true,
     "resolveJsonModule": true,
     "sourceMap": true,
     "strictNullChecks": true,
