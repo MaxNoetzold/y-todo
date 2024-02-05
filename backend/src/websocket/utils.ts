@@ -6,17 +6,7 @@ import * as encoding from "lib0/encoding";
 import * as decoding from "lib0/decoding";
 import * as map from "lib0/map";
 
-import debounce from "lodash/debounce.js";
-
-import { callbackHandler, isCallbackSet } from "./callback.js";
 import { IPersistence, IWSSharedDoc } from "./interfaces.js";
-
-const CALLBACK_DEBOUNCE_WAIT = parseInt(
-  process.env.CALLBACK_DEBOUNCE_WAIT || "2000"
-);
-const CALLBACK_DEBOUNCE_MAXWAIT = parseInt(
-  process.env.CALLBACK_DEBOUNCE_MAXWAIT || "10000"
-);
 
 const wsReadyStateConnecting = 0;
 const wsReadyStateOpen = 1;
@@ -100,14 +90,6 @@ class WSSharedDoc extends Y.Doc implements IWSSharedDoc {
     };
     this.awareness.on("update", awarenessChangeHandler);
     this.on("update", updateHandler);
-    if (isCallbackSet) {
-      this.on(
-        "update",
-        debounce(callbackHandler, CALLBACK_DEBOUNCE_WAIT, {
-          maxWait: CALLBACK_DEBOUNCE_MAXWAIT,
-        })
-      );
-    }
   }
 }
 

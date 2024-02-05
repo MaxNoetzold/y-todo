@@ -20,7 +20,6 @@
     "moduleResolution": "node",
     "noEmitOnError": true,
     "noImplicitAny": true,
-    "preserveWatchOutput": true,
     "resolveJsonModule": true,
     "sourceMap": true,
     "strictNullChecks": true,

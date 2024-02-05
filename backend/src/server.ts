@@ -18,8 +18,10 @@ wss.on("connection", setupWSConnection);
 /*
  * y-mongodb-provider
  */
-const mdb = new MongodbPersistence("mongodb://127.0.0.1:27017/todos", {
-  collectionName: "transactions",
+if (!process.env.MONGO_URL) {
+  throw new Error("Please define the MONGO_URL environment variable");
+}
+const mdb = new MongodbPersistence(process.env.MONGO_URL, {
   flushSize: 100,
   multipleCollections: true,
 });
