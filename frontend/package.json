@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "license": "MIT",
+  "author": "max.noetzold@gmail.com",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -13,6 +15,7 @@
     "@preact/preset-vite": "^2.8.1",
     "bootstrap": "^5.3.2",
     "preact": "^10.19.3",
+    "y-websocket": "^1.5.3",
     "yjs": "^13.6.11"
   },
   "devDependencies": {
