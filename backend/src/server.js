@@ -1,10 +1,9 @@
-import "dotenv/config";
-import http from "http";
-import { WebSocketServer } from "ws";
-import * as Y from "yjs";
-import { MongodbPersistence } from "y-mongodb-provider";
-import { setPersistence, setupWSConnection } from "./websocket/utils.js";
-import { IWSSharedDoc } from "./websocket/interfaces.js";
+require("dotenv").config();
+const http = require("http");
+const WebSocketServer = require("ws").Server;
+const Y = require("yjs");
+const { MongodbPersistence } = require("y-mongodb-provider");
+const { setPersistence, setupWSConnection } = require("./websocket/utils.js");
 
 const server = http.createServer((request, response) => {
   response.writeHead(200, { "Content-Type": "text/plain" });
@@ -27,16 +26,16 @@ const mdb = new MongodbPersistence(process.env.MONGO_URL, {
 });
 
 setPersistence({
-  bindState: async (docName: string, ydoc: IWSSharedDoc) => {
+  bindState: async (docName, ydoc) => {
     const persistedYdoc = await mdb.getYDoc(docName);
     const newUpdates = Y.encodeStateAsUpdate(ydoc);
     mdb.storeUpdate(docName, newUpdates);
     Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc));
-    ydoc.on("update", async (update: Uint8Array) => {
+    ydoc.on("update", async (update) => {
       mdb.storeUpdate(docName, update);
     });
   },
-  writeState: (docName: string, ydoc: IWSSharedDoc) => {
+  writeState: (docName, ydoc) => {
     return new Promise((resolve) => {
       resolve(true);
     });

@@ -1,12 +1,10 @@
-import * as Y from "yjs";
-import * as syncProtocol from "y-protocols/sync.js";
-import * as awarenessProtocol from "y-protocols/awareness.js";
+const Y = require("yjs");
+const syncProtocol = require("y-protocols/dist/sync.cjs");
+const awarenessProtocol = require("y-protocols/dist/awareness.cjs");
 
-import * as encoding from "lib0/encoding";
-import * as decoding from "lib0/decoding";
-import * as map from "lib0/map";
-
-import { IPersistence, IWSSharedDoc } from "./interfaces.js";
+const encoding = require("lib0/dist/encoding.cjs");
+const decoding = require("lib0/dist/decoding.cjs");
+const map = require("lib0/dist/map.cjs");
 
 const wsReadyStateConnecting = 0;
 const wsReadyStateOpen = 1;
@@ -16,22 +14,22 @@ const wsReadyStateClosed = 3; // eslint-disable-line
 // disable gc when using snapshots!
 const gcEnabled = process.env.GC !== "false" && process.env.GC !== "0";
 
-let persistence: IPersistence | null = null;
+let persistence = null;
 
-export const setPersistence = (persistence_: IPersistence) => {
+const setPersistence = (persistence_) => {
   persistence = persistence_;
 };
 
-export const getPersistence = () => persistence;
+const getPersistence = () => persistence;
 
 // exporting docs so that others can use it
-export const docs = new Map<string, IWSSharedDoc>();
+const docs = new Map();
 
 const messageSync = 0;
 const messageAwareness = 1;
 // const messageAuth = 2
 
-const updateHandler = (update: Uint8Array, origin: any, doc: IWSSharedDoc) => {
+const updateHandler = (update, origin, doc) => {
   const encoder = encoding.createEncoder();
   encoding.writeVarUint(encoder, messageSync);
   syncProtocol.writeUpdate(encoder, update);
@@ -39,34 +37,18 @@ const updateHandler = (update: Uint8Array, origin: any, doc: IWSSharedDoc) => {
   doc.conns.forEach((_, conn) => send(doc, conn, message));
 };
 
-class WSSharedDoc extends Y.Doc implements IWSSharedDoc {
-  name: string;
-  conns: Map<Object, Set<number>>;
-  awareness: awarenessProtocol.Awareness;
-
-  constructor(name: string) {
+class WSSharedDoc extends Y.Doc {
+  constructor(name) {
     super({ gc: gcEnabled });
     this.name = name;
     this.conns = new Map();
     this.awareness = new awarenessProtocol.Awareness(this);
     this.awareness.setLocalState(null);
 
-    const awarenessChangeHandler = (
-      {
-        added,
-        updated,
-        removed,
-      }: {
-        added: Array<number>;
-        updated: Array<number>;
-        removed: Array<number>;
-      },
-      conn: Object | null
-    ) => {
+    const awarenessChangeHandler = ({ added, updated, removed }, conn) => {
       const changedClients = added.concat(updated, removed);
       if (conn !== null) {
-        const connControlledIDs =
-          /** @type {Set<number>} */ this.conns.get(conn);
+        const connControlledIDs = this.conns.get(conn);
         if (connControlledIDs !== undefined) {
           added.forEach((clientID) => {
             connControlledIDs.add(clientID);
@@ -93,14 +75,7 @@ class WSSharedDoc extends Y.Doc implements IWSSharedDoc {
   }
 }
 
-/**
- * Gets a Y.Doc by name, whether in memory or on disk
- *
- * @param {string} docname - the name of the Y.Doc to find or create
- * @param {boolean} gc - whether to allow gc on the doc (applies only when created)
- * @return {WSSharedDoc}
- */
-export const getYDoc = (docname: string, gc = true) =>
+const getYDoc = (docname, gc = true) =>
   map.setIfUndefined(docs, docname, () => {
     const doc = new WSSharedDoc(docname);
     doc.gc = gc;
@@ -111,7 +86,7 @@ export const getYDoc = (docname: string, gc = true) =>
     return doc;
   });
 
-const messageListener = (conn: any, doc: IWSSharedDoc, message: Uint8Array) => {
+const messageListener = (conn, doc, message) => {
   try {
     const encoder = encoding.createEncoder();
     const decoder = decoding.createDecoder(message);
@@ -121,9 +96,6 @@ const messageListener = (conn: any, doc: IWSSharedDoc, message: Uint8Array) => {
         encoding.writeVarUint(encoder, messageSync);
         syncProtocol.readSyncMessage(decoder, encoder, doc, conn);
 
-        // If the `encoder` only contains the type of reply message and no
-        // message, there is no need to send the message. When `encoder` only
-        // contains the type of reply, its length is 1.
         if (encoding.length(encoder) > 1) {
           send(doc, conn, encoding.toUint8Array(encoder));
         }
@@ -143,7 +115,7 @@ const messageListener = (conn: any, doc: IWSSharedDoc, message: Uint8Array) => {
   }
 };
 
-const closeConn = (doc: IWSSharedDoc, conn: any) => {
+const closeConn = (doc, conn) => {
   if (doc.conns.has(conn)) {
     const controlledIds = doc.conns.get(conn);
     doc.conns.delete(conn);
@@ -155,7 +127,6 @@ const closeConn = (doc: IWSSharedDoc, conn: any) => {
       );
     }
     if (doc.conns.size === 0 && persistence !== null) {
-      // if persisted, we store state and destroy ydocument
       persistence.writeState(doc.name, doc).then(() => {
         doc.destroy();
       });
@@ -165,7 +136,7 @@ const closeConn = (doc: IWSSharedDoc, conn: any) => {
   conn.close();
 };
 
-const send = (doc: IWSSharedDoc, conn: any, m: Uint8Array) => {
+const send = (doc, conn, m) => {
   if (
     conn.readyState !== wsReadyStateConnecting &&
     conn.readyState !== wsReadyStateOpen
@@ -173,7 +144,7 @@ const send = (doc: IWSSharedDoc, conn: any, m: Uint8Array) => {
     closeConn(doc, conn);
   }
   try {
-    conn.send(m, (err: any) => {
+    conn.send(m, (err) => {
       err != null && closeConn(doc, conn);
     });
   } catch (e) {
@@ -183,21 +154,18 @@ const send = (doc: IWSSharedDoc, conn: any, m: Uint8Array) => {
 
 const pingTimeout = 30000;
 
-export const setupWSConnection = (
-  conn: any,
-  req: any,
+const setupWSConnection = (
+  conn,
+  req,
   { docName = req.url.slice(1).split("?")[0], gc = true } = {}
 ) => {
   conn.binaryType = "arraybuffer";
-  // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc);
   doc.conns.set(conn, new Set());
-  // listen and reply to events
-  conn.on("message", (message: ArrayBuffer) =>
+  conn.on("message", (message) =>
     messageListener(conn, doc, new Uint8Array(message))
   );
 
-  // Check if connection is still alive
   let pongReceived = true;
   const pingInterval = setInterval(() => {
     if (!pongReceived) {
@@ -222,10 +190,8 @@ export const setupWSConnection = (
   conn.on("pong", () => {
     pongReceived = true;
   });
-  // put the following in a variables in a block so the interval handlers don't keep in in
-  // scope
+
   {
-    // send sync step 1
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, messageSync);
     syncProtocol.writeSyncStep1(encoder, doc);
@@ -244,4 +210,12 @@ export const setupWSConnection = (
       send(doc, conn, encoding.toUint8Array(encoder));
     }
   }
+};
+
+module.exports = {
+  setPersistence,
+  getPersistence,
+  docs,
+  getYDoc,
+  setupWSConnection,
 };
