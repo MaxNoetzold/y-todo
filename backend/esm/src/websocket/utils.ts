@@ -6,7 +6,7 @@ import * as encoding from "lib0/encoding";
 import * as decoding from "lib0/decoding";
 import * as map from "lib0/map";
 
-import { IPersistence, IWSSharedDoc } from "./interfaces";
+import { IPersistence, IWSSharedDoc } from "./interfaces.js";
 
 const wsReadyStateConnecting = 0;
 const wsReadyStateOpen = 1;

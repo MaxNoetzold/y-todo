@@ -3,9 +3,9 @@ import http from "http";
 import { WebSocketServer } from "ws";
 import * as Y from "yjs";
 import { MongodbPersistence } from "y-mongodb-provider";
-import { setPersistence, setupWSConnection } from "./websocket/utils";
+import { setPersistence, setupWSConnection } from "./websocket/utils.js";
 
-import { IWSSharedDoc } from "./websocket/interfaces";
+import { IWSSharedDoc } from "./websocket/interfaces.js";
 
 const server = http.createServer((request, response) => {
   response.writeHead(200, { "Content-Type": "text/plain" });
